@@ -1,0 +1,161 @@
+/****************************************************************************************************
+ * CSCI 470/502 Assignment-7  Spring-2019                                                           *
+ *                                                                                                  *
+ * Developers: 1)Madhav Vengalil - Z1856392                                                         *
+ *             2)Shravya Pannala - Z1856511                                                         *
+ *             3)Bhogendra Phani - Z1862761                                                         *
+ *                                                                                                  *
+ *  Section:01                                                                                      *
+ *                                                                                                  *
+ *  Due Date: 04/12/2019                                                                            *
+ *                                                                                                  *
+ *  Purpose:Animation on different shapes                                                           *                                           
+ *                                                                                                  *
+ ****************************************************************************************************/
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.Vector;
+
+//this class represents entire application
+public class AnimationApp extends JFrame implements ActionListener, ListSelectionListener {
+
+    private static final long serialVersionUID = 1L;
+    //3 JButton objects
+    private JButton startButton = new JButton("Start");
+    private JButton pauseButton = new JButton("Pause");
+    private JButton stopButton = new JButton("Stop");
+    JList<Animation> myList ; //JList of Animation objects
+    AnimationPanel ap = new AnimationPanel();
+
+    public static void main(String[] args) {
+
+        try {
+           UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+                                      
+        } catch (UnsupportedLookAndFeelException | IllegalAccessException | ClassNotFoundException
+                | InstantiationException ex) {
+            ex.printStackTrace();
+        }
+       UIManager.put("swing.boldMetal", Boolean.FALSE);
+
+        //Schedule a job for the event-dispatching thread:
+        //creating and showing this application's GUI.
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            AnimationApp an = new AnimationApp("Animation");
+            an.createAndShowGUI();
+            an.pack();
+            Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+            int x = (int) (dimension.getWidth() - an.getWidth())/2;
+            int y = (int) (dimension.getHeight() - an.getHeight())/2;
+            an.setLocation(x,y);
+
+        });
+    }
+
+    private AnimationApp(String title) {
+        super(title);
+    }
+
+    private void createAndShowGUI() {
+        // Add listeners for the buttons.
+        readAnimation();
+        addComponentsToPane();
+        myList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        myList.addListSelectionListener(this);
+        startButton.addActionListener(this);
+        pauseButton.addActionListener(this);
+        stopButton.addActionListener(this );
+        // Display the window.
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        pack();
+        setVisible(true);
+    }
+
+    private void addComponentsToPane() {
+        JPanel Panel1 = new JPanel(new BorderLayout());
+        Panel1.setPreferredSize(new Dimension(600, 600));
+        Panel1.setBackground(Color.BLACK);
+        Panel1.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        Panel1.add(myList, BorderLayout.WEST);
+        Panel1.add(ap, BorderLayout.CENTER);
+        JPanel panel2 = new JPanel(new FlowLayout());
+        panel2.add(startButton);
+        panel2.add(pauseButton);
+        pauseButton.setEnabled(false);
+        panel2.add(stopButton);
+        stopButton.setEnabled(false);
+        Panel1.add(panel2, BorderLayout.SOUTH);
+        add(Panel1, BorderLayout.CENTER);
+    }
+    //method to read animation records and store data into animation objects
+    private void readAnimation() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(".//Animations//animations.txt"));
+            //add animation objects to vector
+            Vector<Animation> anim = new Vector<>();
+            String line = br.readLine();
+            while (line!= null){
+                String [] data = line.split(":");
+                String animationName = data[0].replace(' ', '_');
+                int width = Integer.parseInt(data[1]);
+                int height = Integer.parseInt(data[2]);
+                int numberOfFrames = Integer.parseInt(data[3]);
+                int delay = Integer.parseInt(data[4]);
+                anim.add(new Animation(animationName, width, height, numberOfFrames, delay));
+                line= br.readLine();
+            }
+            br.close();
+            anim.sort(new AnimationComparator()); //sort the vector in ascending order
+            myList = new JList<Animation>(anim);
+        }catch (IOException e){
+            e.printStackTrace();
+            //print error message to console
+            System.out.println(e.getMessage());
+            System.exit(0); //exits the program
+
+        }
+    }
+   //method to handle events from the buttons
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == startButton) {
+            ap.startAnimation();
+            startButton.setEnabled(false);
+            pauseButton.setEnabled(true);
+            stopButton.setEnabled(true);
+        }
+
+        if(e.getSource() == stopButton) {
+            ap.stopAnimation();
+            startButton.setEnabled(true);
+            pauseButton.setEnabled(false);
+            stopButton.setEnabled(false);
+            pauseButton.setText("Pause");
+        }
+        //pause and resume are the same JButton object
+        if(e.getSource() == pauseButton){
+            ap.pauseAnimation();
+            pauseButton.setText("Resume");
+        }
+
+        if(e.getActionCommand() == "Resume"){
+            ap.resumeAnimation();
+            pauseButton.setText("Pause");
+        }
+
+    }
+//method to handle event generated when user clicks on Animation Name
+    public void valueChanged(ListSelectionEvent e){
+        ap.stopAnimation();
+        Animation selected = myList.getSelectedValue();
+        ap.loadAnimation(selected);
+        startButton.setEnabled(true);
+        pauseButton.setEnabled(false);
+        stopButton.setEnabled(false);
+        pauseButton.setText("Pause");
+    }
+}

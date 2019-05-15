@@ -1,0 +1,6 @@
+Sphere to cubes:400:400:60:50
+Cube:600:600:397:20
+Spiral:500:500:198:40
+Swirl:400:400:120:30
+Opening box:500:500:76:50
+Cube to rectangles:400:400:98:50

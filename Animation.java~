@@ -1,0 +1,66 @@
+/****************************************************************************************************
+ * CSCI 470/502 Assignment-7  Spring-2019                                                           *
+ *                                                                                                  *
+ * Developers: 1)Madhav Vengalil - Z1856392                                                         *
+ *             2)Shravya Pannala - Z1856511                                                         *
+ *             3)Bhogendra Phani - Z1862761                                                         *
+ *                                                                                                  *
+ *  Section:01                                                                                      *
+ *                                                                                                  *
+ *  Due Date: 04/12/2019                                                                            *
+ *                                                                                                  *
+ *  Purpose:Animation on different shapes                                                           *                                           
+ *                                                                                                  *
+ ****************************************************************************************************/
+import java.util.Comparator;
+
+//class to encapsulate the data for an animation
+public class Animation {
+//private data members
+   private String n_Animation;
+   private int f_Width;
+   private int f_Height;
+   private int numberOfFrames;
+   private int delay;
+
+//constructor for the class
+   Animation(String s, int width, int height, int frames, int delay){
+       n_Animation = s;
+       f_Height = height;
+       f_Width = width;
+       numberOfFrames = frames;
+       this.delay = delay;
+   }
+
+//accessor methods for the data members
+   public String getN_Animation(){
+        return n_Animation;
+    }
+
+    public int getF_Width(){
+        return f_Width;
+    }
+
+    public int getF_Height(){
+        return f_Height;
+    }
+
+    public int getNumberOfFrames(){
+        return numberOfFrames;
+    }
+
+    public int getDelay(){
+        return delay;
+    }
+
+//this overridden method to return the Animation Name
+    public  String toString(){
+       return n_Animation;
+    }
+}
+//defining a comparator to sort the animation objects
+class AnimationComparator implements Comparator<Animation>{
+    public int compare(Animation a, Animation b){
+        return a.getN_Animation().compareTo(b.getN_Animation());
+    }
+}
